@@ -146,35 +146,11 @@ int main( int argc, char ** argv )
   logger.setLoggingLevel(QsLogging::ErrorLevel);
 #endif
 
-  DestinationPtr fileDestination(DestinationFactory::MakeFileDestination(
-    destLog, EnableLogRotation, MaxSizeBytes(1048576), MaxOldLogCount(2)));
-  DestinationPtr debugDestination(DestinationFactory::MakeDebugOutputDestination());
-  logger.addDestination(debugDestination);
-  logger.addDestination(fileDestination);
-
-  QTranslator translator;
-  QString sufix = QLocale::system().name();
-#if defined Q_OS_UNIX && !defined Q_OS_MAC
-  translator.load(QString(DATADIR)+"/yacreader/languages/yacreaderlibrary_"+sufix);
-#else
-  translator.load(QCoreApplication::applicationDirPath()+"/languages/yacreaderlibrary_"+sufix);
-#endif
-  app.installTranslator(&translator);
-
-  QTranslator viewerTranslator;
-#if defined Q_OS_UNIX && !defined Q_OS_MAC
-  viewerTranslator.load(QString(DATADIR)+"/yacreader/languages/yacreader_"+sufix);
-#else
-  viewerTranslator.load(QCoreApplication::applicationDirPath()+"/languages/yacreader_"+sufix);
-#endif
-  app.installTranslator(&viewerTranslator);
-
-  qRegisterMetaType<ComicDB>("ComicDB");
-
 QCommandLineParser parser;
 parser.addHelpOption();
 parser.addVersionOption();
 parser.addOption({"loglevel", "Set log level. Valid values: trace, info, debug, warn, error.", "loglevel", "warning"});
+parser.addOption({"logfile", "Set log file location.", "logfile", destLog});
 #ifdef Q_OS_WIN
 parser.addOption({"opengl", "Set opengl renderer. Valid values: desktop, es, software.", "gl_renderer"});
 #endif
@@ -221,6 +197,40 @@ if (parser.isSet("loglevel")) {
         parser.showHelp();
     }
 }
+
+if (parser.isSet("logfile")) {
+    if (parser.value("logfile") != "") {
+        destLog = parser.value("logfile");
+    }
+    else {
+        parser.showHelp();
+    }
+}
+
+  DestinationPtr fileDestination(DestinationFactory::MakeFileDestination(
+    destLog, EnableLogRotation, MaxSizeBytes(1048576), MaxOldLogCount(2)));
+  DestinationPtr debugDestination(DestinationFactory::MakeDebugOutputDestination());
+  logger.addDestination(debugDestination);
+  logger.addDestination(fileDestination);
+
+  QTranslator translator;
+  QString sufix = QLocale::system().name();
+#if defined Q_OS_UNIX && !defined Q_OS_MAC
+  translator.load(QString(DATADIR)+"/yacreader/languages/yacreaderlibrary_"+sufix);
+#else
+  translator.load(QCoreApplication::applicationDirPath()+"/languages/yacreaderlibrary_"+sufix);
+#endif
+  app.installTranslator(&translator);
+
+  QTranslator viewerTranslator;
+#if defined Q_OS_UNIX && !defined Q_OS_MAC
+  viewerTranslator.load(QString(DATADIR)+"/yacreader/languages/yacreader_"+sufix);
+#else
+  viewerTranslator.load(QCoreApplication::applicationDirPath()+"/languages/yacreader_"+sufix);
+#endif
+  app.installTranslator(&viewerTranslator);
+
+  qRegisterMetaType<ComicDB>("ComicDB");
 
 #ifdef SERVER_RELEASE
   QSettings * settings = new QSettings(YACReader::getSettingsPath()+"/YACReaderLibrary.ini",QSettings::IniFormat); //TODO unificar la creaci�n del fichero de config con el servidor

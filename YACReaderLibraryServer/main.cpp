@@ -111,6 +111,7 @@ int main( int argc, char ** argv )
     const QCommandLineOption versionOption = parser.addVersionOption();
     parser.addPositionalArgument("command", "The command to execute. [start, create-library, update-library, add-library, remove-library, list-libraries]");
     parser.addOption({"loglevel", "Set log level. Valid values: trace, info, debug, warn, error.", "loglevel", "info"});
+    parser.addOption({"logfile", "Set log file location.", "logfile", YACReader::getSettingsPath()+"/yacreaderlibrary.log"});
     parser.parse(app.arguments());
 
     const QStringList args = parser.positionalArguments();
@@ -149,6 +150,15 @@ int main( int argc, char ** argv )
             }
             else if (parser.value("loglevel") == "error") {
                 logger.setLoggingLevel(QsLogging::ErrorLevel);
+            }
+            else {
+                parser.showHelp();
+            }
+        }
+
+        if (parser.isSet("logfile")) {
+            if (parser.value("logfile") != "") {
+                destLog = parser.value("logfile");
             }
             else {
                 parser.showHelp();
