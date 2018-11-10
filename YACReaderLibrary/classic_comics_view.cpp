@@ -177,7 +177,7 @@ void ClassicComicsView::setModel(ComicModel *model)
         //if(!settings->contains(COMICS_VIEW_HEADERS))
 
 
-        QStringList paths = model->getPaths(model->getCurrentPath());//TODO ComicsView: get currentpath from somewhere currentPath());
+        QStringList paths = model->getPaths(model->getCurrentDataDirPath());//TODO ComicsView: get currentpath from somewhere currentPath());
         comicFlow->setImagePaths(paths);
         comicFlow->setMarks(model->getReadList());
         //comicFlow->setFocus(Qt::OtherFocusReason);

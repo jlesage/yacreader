@@ -373,7 +373,7 @@ QPixmap ComicInfo::getCover(const QString & basePath)
 {
 	if(cover.isNull())
 	{
-		cover.load(basePath + "/.yacreaderlibrary/covers/" + hash + ".jpg");
+		cover.load(basePath + "/covers/" + hash + ".jpg");
 	}
 	QPixmap c;
 	c.convertFromImage(cover);

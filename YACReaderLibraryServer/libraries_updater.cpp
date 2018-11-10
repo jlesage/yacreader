@@ -17,7 +17,7 @@ void LibrariesUpdater::updateIfNeeded()
     libraries.load();
 
     foreach(QString name, libraries.getNames()) {
-        QString path = libraries.getPath(name) + "/.yacreaderlibrary";
+        QString path = libraries.getDataDirPath(name);
 
         QDir d;
 

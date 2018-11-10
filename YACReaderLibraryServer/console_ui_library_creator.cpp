@@ -34,7 +34,7 @@ void ConsoleUILibraryCreator::createLibrary(const QString & name, const QString 
         return;
     }
 
-    libraryCreator->createLibrary(cleanPath,QDir::cleanPath(pathDir.absolutePath()+"/.yacreaderlibrary"));
+    libraryCreator->createLibrary(cleanPath,QDir::cleanPath(yacreaderLibraries.getDataDirPathFromLibraryPath(pathDir.absolutePath())));
 
     connect(libraryCreator, &LibraryCreator::finished, this, &ConsoleUILibraryCreator::done);
     connect(libraryCreator, &LibraryCreator::comicAdded, this, &ConsoleUILibraryCreator::newComic);
@@ -64,7 +64,10 @@ void ConsoleUILibraryCreator::updateLibrary(const QString & path)
     }
     QString cleanPath = QDir::cleanPath(pathDir.absolutePath());
 
-    libraryCreator->updateLibrary(cleanPath,QDir::cleanPath(pathDir.absolutePath()+"/.yacreaderlibrary"));
+    YACReaderLibraries yacreaderLibraries;
+    yacreaderLibraries.load();
+
+    libraryCreator->updateLibrary(cleanPath,QDir::cleanPath(YACReaderLibraries::getDataDirPathFromLibraryPath(pathDir.absolutePath())));
 
     connect(libraryCreator, &LibraryCreator::finished, this, &ConsoleUILibraryCreator::done);
     connect(libraryCreator, &LibraryCreator::comicAdded, this, &ConsoleUILibraryCreator::newComic);

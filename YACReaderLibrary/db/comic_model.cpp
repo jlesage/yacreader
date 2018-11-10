@@ -163,7 +163,7 @@ bool ComicModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int 
         allComicIds << item->data(Id).toULongLong();
     }
 
-    QSqlDatabase db = DataBaseManagement::loadDatabase(_databasePath);
+    QSqlDatabase db = DataBaseManagement::loadDatabase(_dataDirPath);
     switch (mode) {
     case Favorites:
         DBHelper::reasignOrderToComicsInFavorites(allComicIds,db);
@@ -437,7 +437,7 @@ int ComicModel::rowCount(const QModelIndex &parent) const
 QStringList ComicModel::getPaths(const QString & _source)
 {
 	QStringList paths;
-	QString source = _source + "/.yacreaderlibrary/covers/";
+	QString source = _source + "/covers/";
     QList<ComicItem *>::ConstIterator itr;
 	for(itr = _data.constBegin();itr != _data.constEnd();itr++)
 	{
@@ -448,7 +448,7 @@ QStringList ComicModel::getPaths(const QString & _source)
 	return paths;
 }
 
-void ComicModel::setupFolderModelData(unsigned long long int folderId,const QString & databasePath)
+void ComicModel::setupFolderModelData(unsigned long long int folderId,const QString & dataDirPath)
 {
     enableResorting = false;
     mode = Folder;
@@ -458,8 +458,8 @@ void ComicModel::setupFolderModelData(unsigned long long int folderId,const QStr
     qDeleteAll(_data);
     _data.clear();
 
-    _databasePath = databasePath;
-    QSqlDatabase db = DataBaseManagement::loadDatabase(databasePath);
+    _dataDirPath = dataDirPath;
+    QSqlDatabase db = DataBaseManagement::loadDatabase(dataDirPath);
     {
         QSqlQuery selectQuery(db);
         selectQuery.prepare("SELECT ci.number,ci.title,c.fileName,ci.numPages,c.id,c.parentId,c.path,ci.hash,ci.read,ci.isBis,ci.currentPage,ci.rating,ci.hasBeenOpened "
@@ -477,7 +477,7 @@ void ComicModel::setupFolderModelData(unsigned long long int folderId,const QStr
         emit isEmpty();*/
 }
 
-void ComicModel::setupLabelModelData(unsigned long long parentLabel, const QString &databasePath)
+void ComicModel::setupLabelModelData(unsigned long long parentLabel, const QString &dataDirPath)
 {
     enableResorting = true;
     mode = Label;
@@ -487,8 +487,8 @@ void ComicModel::setupLabelModelData(unsigned long long parentLabel, const QStri
     qDeleteAll(_data);
     _data.clear();
 
-    _databasePath = databasePath;
-    QSqlDatabase db = DataBaseManagement::loadDatabase(databasePath);
+    _dataDirPath = dataDirPath;
+    QSqlDatabase db = DataBaseManagement::loadDatabase(dataDirPath);
     {
         QSqlQuery selectQuery(db);
         selectQuery.prepare("SELECT ci.number,ci.title,c.fileName,ci.numPages,c.id,c.parentId,c.path,ci.hash,ci.read,ci.isBis,ci.currentPage,ci.rating,ci.hasBeenOpened "
@@ -508,7 +508,7 @@ void ComicModel::setupLabelModelData(unsigned long long parentLabel, const QStri
         emit isEmpty();*/
 }
 
-void ComicModel::setupReadingListModelData(unsigned long long parentReadingList, const QString &databasePath)
+void ComicModel::setupReadingListModelData(unsigned long long parentReadingList, const QString &dataDirPath)
 {
     mode = ReadingList;
     sourceId = parentReadingList;
@@ -517,8 +517,8 @@ void ComicModel::setupReadingListModelData(unsigned long long parentReadingList,
     qDeleteAll(_data);
     _data.clear();
 
-    _databasePath = databasePath;
-    QSqlDatabase db = DataBaseManagement::loadDatabase(databasePath);
+    _dataDirPath = dataDirPath;
+    QSqlDatabase db = DataBaseManagement::loadDatabase(dataDirPath);
     {
         QList<qulonglong> ids;
         ids << parentReadingList;
@@ -562,7 +562,7 @@ void ComicModel::setupReadingListModelData(unsigned long long parentReadingList,
     endResetModel();
 }
 
-void ComicModel::setupFavoritesModelData(const QString &databasePath)
+void ComicModel::setupFavoritesModelData(const QString &dataDirPath)
 {
     enableResorting = true;
     mode = Favorites;
@@ -571,8 +571,8 @@ void ComicModel::setupFavoritesModelData(const QString &databasePath)
     qDeleteAll(_data);
     _data.clear();
 
-    _databasePath = databasePath;
-    QSqlDatabase db = DataBaseManagement::loadDatabase(databasePath);
+    _dataDirPath = dataDirPath;
+    QSqlDatabase db = DataBaseManagement::loadDatabase(dataDirPath);
     {
         QSqlQuery selectQuery(db);
         selectQuery.prepare("SELECT ci.number,ci.title,c.fileName,ci.numPages,c.id,c.parentId,c.path,ci.hash,ci.read,ci.isBis,ci.currentPage,ci.rating,ci.hasBeenOpened "
@@ -592,7 +592,7 @@ void ComicModel::setupFavoritesModelData(const QString &databasePath)
         emit isEmpty();*/
 }
 
-void ComicModel::setupReadingModelData(const QString &databasePath)
+void ComicModel::setupReadingModelData(const QString &dataDirPath)
 {
     enableResorting = false;
     mode = Reading;
@@ -601,8 +601,8 @@ void ComicModel::setupReadingModelData(const QString &databasePath)
     qDeleteAll(_data);
     _data.clear();
 
-    _databasePath = databasePath;
-    QSqlDatabase db = DataBaseManagement::loadDatabase(databasePath);
+    _dataDirPath = dataDirPath;
+    QSqlDatabase db = DataBaseManagement::loadDatabase(dataDirPath);
     {
         QSqlQuery selectQuery(db);
         selectQuery.prepare("SELECT ci.number,ci.title,c.fileName,ci.numPages,c.id,c.parentId,c.path,ci.hash,ci.read,ci.isBis,ci.currentPage,ci.rating,ci.hasBeenOpened "
@@ -621,7 +621,7 @@ void ComicModel::setupReadingModelData(const QString &databasePath)
         emit isEmpty();*/
 }
 
-void ComicModel::setupModelData(const SearchModifiers modifier, const QString &filter, const QString &databasePath)
+void ComicModel::setupModelData(const SearchModifiers modifier, const QString &filter, const QString &dataDirPath)
 {
     //QFile f(QCoreApplication::applicationDirPath()+"/performance.txt");
     //f.open(QIODevice::Append);
@@ -633,8 +633,8 @@ void ComicModel::setupModelData(const SearchModifiers modifier, const QString &f
 
     //QTextStream txtS(&f);
     //txtS << "TABLEMODEL: Tiempo de borrado: " << timer.elapsed() << "ms\r\n";
-    _databasePath = databasePath;
-    QSqlDatabase db = DataBaseManagement::loadDatabase(databasePath);
+    _dataDirPath = dataDirPath;
+    QSqlDatabase db = DataBaseManagement::loadDatabase(dataDirPath);
     {
     //crear la consulta
     //timer.restart();
@@ -745,7 +745,7 @@ void ComicModel::setupModelDataForList(QSqlQuery &sqlquery)
 
 ComicDB ComicModel::getComic(const QModelIndex & mi)
 {
-	QSqlDatabase db = DataBaseManagement::loadDatabase(_databasePath);
+	QSqlDatabase db = DataBaseManagement::loadDatabase(_dataDirPath);
     ComicDB c = DBHelper::loadComic(_data.at(mi.row())->data(ComicModel::Id).toULongLong(),db);
 	db.close();
 	QSqlDatabase::removeDatabase(db.connectionName());
@@ -755,7 +755,7 @@ ComicDB ComicModel::getComic(const QModelIndex & mi)
 
 ComicDB ComicModel::_getComic(const QModelIndex & mi)
 {
-	QSqlDatabase db = DataBaseManagement::loadDatabase(_databasePath);
+	QSqlDatabase db = DataBaseManagement::loadDatabase(_dataDirPath);
     ComicDB c = DBHelper::loadComic(_data.at(mi.row())->data(ComicModel::Id).toULongLong(),db);
 	db.close();
 	QSqlDatabase::removeDatabase(db.connectionName());
@@ -789,7 +789,7 @@ QVector<YACReaderComicReadStatus> ComicModel::setAllComicsRead(YACReaderComicRea
 
 QList<ComicDB> ComicModel::getAllComics()
 {
-	QSqlDatabase db = DataBaseManagement::loadDatabase(_databasePath);
+	QSqlDatabase db = DataBaseManagement::loadDatabase(_dataDirPath);
 	db.transaction();
 
 	QList<ComicDB> comics;
@@ -810,7 +810,7 @@ QList<ComicDB> ComicModel::getComics(QList<QModelIndex> list)
 {
 	QList<ComicDB> comics;
 
-	QSqlDatabase db = DataBaseManagement::loadDatabase(_databasePath);
+	QSqlDatabase db = DataBaseManagement::loadDatabase(_dataDirPath);
 	db.transaction();
 	QList<QModelIndex>::const_iterator itr;
 	for(itr = list.constBegin(); itr!= list.constEnd();itr++)
@@ -825,7 +825,7 @@ QList<ComicDB> ComicModel::getComics(QList<QModelIndex> list)
 //TODO
 QVector<YACReaderComicReadStatus> ComicModel::setComicsRead(QList<QModelIndex> list,YACReaderComicReadStatus read)
 {
-	QSqlDatabase db = DataBaseManagement::loadDatabase(_databasePath);
+	QSqlDatabase db = DataBaseManagement::loadDatabase(_dataDirPath);
 	db.transaction();
 	foreach (QModelIndex mi, list)
 	{
@@ -858,7 +858,7 @@ QVector<YACReaderComicReadStatus> ComicModel::setComicsRead(QList<QModelIndex> l
 }
 qint64 ComicModel::asignNumbers(QList<QModelIndex> list,int startingNumber)
 {
-	QSqlDatabase db = DataBaseManagement::loadDatabase(_databasePath);
+	QSqlDatabase db = DataBaseManagement::loadDatabase(_dataDirPath);
 	db.transaction();
     qint64 idFirst = _data.value(list[0].row())->data(ComicModel::Id).toULongLong();
 	int i = 0;
@@ -906,7 +906,7 @@ QList<QModelIndex> ComicModel::getIndexesFromIds(const QList<qulonglong> &comicI
 
 void ComicModel::startTransaction()
 {
-	dbTransaction = DataBaseManagement::loadDatabase(_databasePath);
+	dbTransaction = DataBaseManagement::loadDatabase(_dataDirPath);
 	dbTransaction.transaction();
 }
 
@@ -933,7 +933,7 @@ void ComicModel::removeInTransaction(int row)
 void ComicModel::remove(ComicDB * comic, int row)
 {
 	beginRemoveRows(QModelIndex(),row,row);
-	QSqlDatabase db = DataBaseManagement::loadDatabase(_databasePath);
+	QSqlDatabase db = DataBaseManagement::loadDatabase(_dataDirPath);
 
 	DBHelper::removeFromDB(comic,db);
 	
@@ -981,7 +981,7 @@ void ComicModel::resetComicRating(const QModelIndex &mi)
 {
     ComicDB comic = getComic(mi);
 
-    QSqlDatabase db = DataBaseManagement::loadDatabase(_databasePath);
+    QSqlDatabase db = DataBaseManagement::loadDatabase(_dataDirPath);
 
     comic.info.rating = 0;
     _data[mi.row()]->setData(ComicModel::Rating,0);
@@ -995,7 +995,7 @@ void ComicModel::resetComicRating(const QModelIndex &mi)
 
 QUrl ComicModel::getCoverUrlPathForComicHash(const QString &hash) const
 {
-    return QUrl("file:"+_databasePath+"/covers/"+hash+".jpg");
+    return QUrl("file:"+_dataDirPath+"/covers/"+hash+".jpg");
 }
 
 void ComicModel::addComicsToFavorites(const QList<qulonglong> &comicIds)
@@ -1007,7 +1007,7 @@ void ComicModel::addComicsToFavorites(const QList<QModelIndex> & comicsList)
 {
     QList<ComicDB> comics = getComics(comicsList);
 
-    QSqlDatabase db = DataBaseManagement::loadDatabase(_databasePath);
+    QSqlDatabase db = DataBaseManagement::loadDatabase(_dataDirPath);
 
     DBHelper::insertComicsInFavorites(comics,db);
 
@@ -1024,7 +1024,7 @@ void ComicModel::addComicsToLabel(const QList<QModelIndex> &comicsList, qulonglo
 {
     QList<ComicDB> comics = getComics(comicsList);
 
-    QSqlDatabase db = DataBaseManagement::loadDatabase(_databasePath);
+    QSqlDatabase db = DataBaseManagement::loadDatabase(_dataDirPath);
 
     DBHelper::insertComicsInLabel(comics,labelId,db);
 
@@ -1041,7 +1041,7 @@ void ComicModel::addComicsToReadingList(const QList<QModelIndex> &comicsList, qu
 {
     QList<ComicDB> comics = getComics(comicsList);
 
-    QSqlDatabase db = DataBaseManagement::loadDatabase(_databasePath);
+    QSqlDatabase db = DataBaseManagement::loadDatabase(_dataDirPath);
 
     DBHelper::insertComicsInReadingList(comics,readingListId,db);
 
@@ -1053,7 +1053,7 @@ void ComicModel::deleteComicsFromFavorites(const QList<QModelIndex> &comicsList)
 {
     QList<ComicDB> comics = getComics(comicsList);
 
-    QSqlDatabase db = DataBaseManagement::loadDatabase(_databasePath);
+    QSqlDatabase db = DataBaseManagement::loadDatabase(_dataDirPath);
 
     DBHelper::deleteComicsFromFavorites(comics,db);
 
@@ -1068,7 +1068,7 @@ void ComicModel::deleteComicsFromLabel(const QList<QModelIndex> &comicsList, qul
 {
     QList<ComicDB> comics = getComics(comicsList);
 
-    QSqlDatabase db = DataBaseManagement::loadDatabase(_databasePath);
+    QSqlDatabase db = DataBaseManagement::loadDatabase(_dataDirPath);
 
     DBHelper::deleteComicsFromLabel(comics,labelId,db);
 
@@ -1082,7 +1082,7 @@ void ComicModel::deleteComicsFromReadingList(const QList<QModelIndex> &comicsLis
 {
     QList<ComicDB> comics = getComics(comicsList);
 
-    QSqlDatabase db = DataBaseManagement::loadDatabase(_databasePath);
+    QSqlDatabase db = DataBaseManagement::loadDatabase(_dataDirPath);
 
     DBHelper::deleteComicsFromReadingList(comics,readingListId,db);
 
@@ -1112,7 +1112,7 @@ bool ComicModel::isFavorite(const QModelIndex &index)
 {
     bool isFavorite;
 
-    QSqlDatabase db = DataBaseManagement::loadDatabase(_databasePath);
+    QSqlDatabase db = DataBaseManagement::loadDatabase(_dataDirPath);
 
     isFavorite = DBHelper::isFavoriteComic(_data[index.row()]->data(Id).toLongLong(),db);
 
@@ -1126,7 +1126,7 @@ void ComicModel::updateRating(int rating, QModelIndex mi)
 {
 	ComicDB comic = getComic(mi);
 
-	QSqlDatabase db = DataBaseManagement::loadDatabase(_databasePath);
+	QSqlDatabase db = DataBaseManagement::loadDatabase(_dataDirPath);
 	//TODO optimize update
 	
 	comic.info.rating = rating;

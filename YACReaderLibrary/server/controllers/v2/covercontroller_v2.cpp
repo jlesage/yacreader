@@ -19,7 +19,7 @@ void CoverControllerV2::service(HttpRequest& request, HttpResponse& response)
     QString libraryName = DBHelper::getLibraryName(pathElements.at(3).toInt());
     QString fileName = pathElements.at(5);
 
-	QImage img(libraries.getPath(libraryName)+"/.yacreaderlibrary/covers/"+fileName);
+	QImage img(libraries.getDataDirPath(libraryName)+"/covers/"+fileName);
 	if (!img.isNull()) {
 		QByteArray ba;
 		QBuffer buffer(&ba);

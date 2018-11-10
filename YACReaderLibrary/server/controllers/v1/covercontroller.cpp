@@ -44,7 +44,7 @@ void CoverController::service(HttpRequest& request, HttpResponse& response)
     //	file.close();
     //}
 
-    QImage img(libraries.getPath(libraryName)+"/.yacreaderlibrary/covers/"+fileName);
+    QImage img(libraries.getDataDirPath(libraryName)+"/covers/"+fileName);
     if (!img.isNull()) {
 
         int width = 80, height = 120;

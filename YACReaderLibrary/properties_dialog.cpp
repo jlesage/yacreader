@@ -560,7 +560,7 @@ void PropertiesDialog::setComics(QList<ComicDB> comics)
 	else
 	{
 		this->setWindowTitle(tr("Edit comic information"));
-		setCover(comic.info.getCover(basePath));
+		setCover(comic.info.getCover(dataDirPath));
 	}
 
 }
@@ -584,7 +584,7 @@ void PropertiesDialog::updateComics()
 void PropertiesDialog::setMultipleCover()
 {
 	ComicDB lastComic = comics.last();
-	QPixmap last = lastComic.info.getCover(basePath);
+	QPixmap last = lastComic.info.getCover(dataDirPath);
 	last = last.scaledToHeight(444,Qt::SmoothTransformation);
 
 	coverImage = QPixmap::fromImage(blurred(last.toImage(),QRect(0,0,last.width(),last.height()),15));
@@ -762,7 +762,7 @@ void PropertiesDialog::save()
 	{
 		if(coverChanged)// && coverPageEdit->text().toInt() != *comics[0].info.coverPage)
 		{
-            ThumbnailCreator tc(basePath+comics[0].path,basePath+"/.yacreaderlibrary/covers/"+comics[0].info.hash+".jpg", comics[0].info.coverPage.toInt());
+            ThumbnailCreator tc(basePath+comics[0].path,dataDirPath+"/covers/"+comics[0].info.hash+".jpg", comics[0].info.coverPage.toInt());
 			tc.create();
 
             if(tc.getOriginalCoverSize().second > 0)

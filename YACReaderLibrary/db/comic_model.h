@@ -85,18 +85,18 @@ public:
     QMimeData * mimeData(const QModelIndexList &indexes) const;
     QStringList mimeTypes() const;
 
-    void setupFolderModelData(unsigned long long int parentFolder,const QString & databasePath);
-    void setupLabelModelData(unsigned long long int parentLabel, const QString & databasePath);
-    void setupReadingListModelData(unsigned long long int parentReadingList, const QString & databasePath);
-    void setupFavoritesModelData(const QString & databasePath);
-    void setupReadingModelData(const QString & databasePath);
+    void setupFolderModelData(unsigned long long int parentFolder,const QString & dataDirPath);
+    void setupLabelModelData(unsigned long long int parentLabel, const QString & dataDirPath);
+    void setupReadingListModelData(unsigned long long int parentReadingList, const QString & dataDirPath);
+    void setupFavoritesModelData(const QString & dataDirPath);
+    void setupReadingModelData(const QString & dataDirPath);
     //configures the model for showing the comics matching the filter criteria.
-    void setupModelData(const SearchModifiers modifier, const QString & filter, const QString & databasePath);
+    void setupModelData(const SearchModifiers modifier, const QString & filter, const QString & dataDirPath);
 
 	//Métodos de conveniencia
 	QStringList getPaths(const QString & _source);
 	QString getComicPath(QModelIndex mi);
-    QString getCurrentPath(){return QString(_databasePath).remove("/.yacreaderlibrary");}
+	QString getCurrentDataDirPath(){return _dataDirPath;}
 	ComicDB getComic(const QModelIndex & mi); //--> para la edición
     //ComicDB getComic(int row);
 	QVector<YACReaderComicReadStatus> getReadList();
@@ -152,7 +152,7 @@ private:
 	ComicDB _getComic(const QModelIndex & mi);
 	QList<ComicItem *> _data;
 
-	QString _databasePath;
+	QString _dataDirPath;
 
 	QSqlDatabase dbTransaction;
 

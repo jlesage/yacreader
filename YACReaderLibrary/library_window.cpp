@@ -1147,7 +1147,7 @@ void LibraryWindow::loadLibrary(const QString & name)
         historyController->clear();
 
 		showRootWidget();
-		QString path=libraries.getPath(name)+"/.yacreaderlibrary";
+		QString path=libraries.getDataDirPath(name);
 		QDir d; //TODO change this by static methods (utils class?? with delTree for example)
 		QString dbVersion;
 		if(d.exists(path) && d.exists(path+"/library.ydb") && (dbVersion = DataBaseManagement::checkValidDB(path+"/library.ydb")) != "") //si existe en disco la biblioteca seleccionada, y es válida..
@@ -1203,7 +1203,11 @@ void LibraryWindow::loadLibrary(const QString & name)
 
 				d.setCurrent(libraries.getPath(name));
 				d.setFilter(QDir::AllDirs | QDir::Files | QDir::Hidden | QDir::NoSymLinks | QDir::NoDotAndDotDot);
+#ifdef DETACHED_LIBRARY_DATA_DIR
+				if(d.count()<=0) //librería de sólo lectura
+#else
 				if(d.count()<=1) //librería de sólo lectura
+#endif
 				{
 					//QMessageBox::critical(NULL,QString::number(d.count()),QString::number(d.count()));
 					disableLibrariesActions(false);
@@ -1278,7 +1282,7 @@ void LibraryWindow::loadLibrary(const QString & name)
 					QString path = libraries.getPath(selectedLibrary->currentText());
 					if(QMessageBox::question(this,tr("Old library"),tr("Library '%1' has been created with an older version of YACReaderLibrary. It must be created again. Do you want to create the library now?").arg(currentLibrary),QMessageBox::Yes,QMessageBox::No)==QMessageBox::Yes)
 					{
-						QDir d(path+"/.yacreaderlibrary");
+						QDir d(libraries.getDataDirPath(currentLibrary));
                         d.removeRecursively();
                         //d.rmdir(path+"/.yacreaderlibrary");
 						createLibraryDialog->setDataAndStart(currentLibrary,path);
@@ -1422,8 +1426,9 @@ void LibraryWindow::updateFolder(const QModelIndex & miFolder)
 
     QString currentLibrary = selectedLibrary->currentText();
     QString path = libraries.getPath(currentLibrary);
+    QString dataDirPath = libraries.getDataDirPath(currentLibrary);
     _lastAdded = currentLibrary;
-    libraryCreator->updateFolder(QDir::cleanPath(path),QDir::cleanPath(path+"/.yacreaderlibrary"),QDir::cleanPath(currentPath()+foldersModel->getFolderPath(miFolder)),miFolder);
+    libraryCreator->updateFolder(QDir::cleanPath(path),QDir::cleanPath(dataDirPath),QDir::cleanPath(currentPath()+foldersModel->getFolderPath(miFolder)),miFolder);
     libraryCreator->start();
 }
 
@@ -1914,7 +1919,7 @@ void LibraryWindow::openLibrary(QString path, QString name)
 		//TODO: fix bug, /a/b/c/.yacreaderlibrary/d/e
 		path.remove("/.yacreaderlibrary");
 		QDir d; //TODO change this by static methods (utils class?? with delTree for example)
-		if(d.exists(path + "/.yacreaderlibrary"))
+		if(d.exists(libraries.getDataDirPathFromLibraryPath(path)))
 		{
 			_lastAdded = name;
 			_sourceLastAdded = path;
@@ -1949,21 +1954,26 @@ void LibraryWindow::updateLibrary()
 
 	QString currentLibrary = selectedLibrary->currentText();
 	QString path = libraries.getPath(currentLibrary);
+	QString dataDirPath = libraries.getDataDirPath(currentLibrary);
 	_lastAdded = currentLibrary;
-	libraryCreator->updateLibrary(path,path+"/.yacreaderlibrary");
+	libraryCreator->updateLibrary(path,dataDirPath);
 	libraryCreator->start();
 }
 
 void LibraryWindow::deleteCurrentLibrary()
 {
 	QString path = libraries.getPath(selectedLibrary->currentText());
+	QString dataDirPath = libraries.getDataDirPath(selectedLibrary->currentText());
 	libraries.remove(selectedLibrary->currentText());
 	selectedLibrary->removeItem(selectedLibrary->currentIndex());
 	//selectedLibrary->setCurrentIndex(0);
-	path = path+"/.yacreaderlibrary";
+	path = dataDirPath;
 
 	QDir d(path);
-    d.removeRecursively();
+	QLOG_INFO() << "About to remove library metadata at '" << path << "'.";
+	if (!d.removeRecursively()) {
+		QLOG_ERROR() <<  QString("Failed to remove library metadata at '%1'.").arg(path);
+	}
 	if(libraries.isEmpty())//no more libraries available.
 	{
         comicsViewsManager->comicsView->setModel(NULL);
@@ -2055,7 +2065,7 @@ void LibraryWindow::setRootIndex()
 {
 	if(!libraries.isEmpty())
 	{
-		QString path=libraries.getPath(selectedLibrary->currentText())+"/.yacreaderlibrary";
+		QString path=libraries.getDataDirPath(selectedLibrary->currentText());
 		QDir d; //TODO change this by static methods (utils class?? with delTree for example)
 		if(d.exists(path))
 		{
@@ -2198,6 +2208,7 @@ void LibraryWindow::showProperties()
 
     propertiesDialog->databasePath = foldersModel->getDatabase();
 	propertiesDialog->basePath = currentPath();
+	propertiesDialog->dataDirPath = currentDataDirPath();
 	propertiesDialog->setComics(comics);
 
 	propertiesDialog->show();
@@ -2361,7 +2372,7 @@ void LibraryWindow::setFolderAsUnread()
 void LibraryWindow::exportLibrary(QString destPath)
 {
 	QString currentLibrary = selectedLibrary->currentText();
-	QString path = libraries.getPath(currentLibrary)+"/.yacreaderlibrary";
+	QString path = libraries.getDataDirPath(currentLibrary);
 	packageManager->createPackage(path,destPath+"/"+currentLibrary);
 }
 
@@ -2383,6 +2394,11 @@ QString LibraryWindow::currentPath()
     return libraries.getPath(selectedLibrary->currentText());
 }
 
+QString LibraryWindow::currentDataDirPath()
+{
+    return libraries.getDataDirPath(selectedLibrary->currentText());
+}
+
 QString LibraryWindow::currentFolderPath()
 {
     QString path;
@@ -2399,13 +2415,13 @@ QString LibraryWindow::currentFolderPath()
 
 void LibraryWindow::showExportComicsInfo()
 {
-	exportComicsInfoDialog->source = currentPath() + "/.yacreaderlibrary/library.ydb";
+	exportComicsInfoDialog->source = currentDataDirPath() + "/library.ydb";
     exportComicsInfoDialog->open();
 }
 
 void LibraryWindow::showImportComicsInfo()
 {
-	importComicsInfoDialog->dest = currentPath() + "/.yacreaderlibrary/library.ydb";
+	importComicsInfoDialog->dest = currentDataDirPath() + "/library.ydb";
     importComicsInfoDialog->open();
 }
 #include "startup.h"

@@ -568,6 +568,8 @@ bool DataBaseManagement::importComicsInfo(QString source, QString dest)
 			QString basePath = QString(dest).remove("/.yacreaderlibrary/library.ydb");
 			QString path = basePath + getComic.record().value("path").toString();
 			int coverPage =  getComic.record().value("coverPage").toInt();
+			// TODO: How to get the path to the book (path = path to the book) ?
+			//       We could loop through libraries and find the one that have a matching dataPath.
 			ThumbnailCreator tc(path,basePath+"/.yacreaderlibrary/covers/"+hash+".jpg",coverPage);
 			tc.create();
 

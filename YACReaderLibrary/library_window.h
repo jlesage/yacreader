@@ -269,6 +269,7 @@ public:
     //void enableLibraryActions();
 
     QString currentPath();
+    QString currentDataDirPath();
     QString currentFolderPath();
 
     //settings

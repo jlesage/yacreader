@@ -33,6 +33,30 @@ QString YACReaderLibraries::getPath(int id)
 	return "";
 }
 
+QString YACReaderLibraries::getDataDirPathFromLibraryPath(const QString &path)
+{
+#ifdef DETACHED_LIBRARY_DATA_DIR
+	QByteArray array = path.toUtf8();
+	QString hash = QString(QCryptographicHash::hash(array,QCryptographicHash::Sha1).toHex());
+	return YACReader::getSettingsPath()+"/libraries/"+hash;
+#else
+	return path+"/.yacreaderlibrary";
+#endif
+}
+
+QString YACReaderLibraries::getDataDirPath(const QString &name)
+{
+	return getDataDirPathFromLibraryPath(libraries.value(name).second);
+}
+
+QString YACReaderLibraries::getDataDirPath(int id)
+{
+	foreach(QString name, libraries.keys())
+		if(libraries.value(name).first == id)
+			return getDataDirPath(name);
+	return "";
+}
+
 QString YACReaderLibraries::getName(int id)
 {
 	foreach(QString name, libraries.keys())

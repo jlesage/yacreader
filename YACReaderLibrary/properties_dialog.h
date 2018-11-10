@@ -121,6 +121,7 @@ class QToolButton;
 		PropertiesDialog(QWidget * parent = 0);
 		QString databasePath;
 		QString basePath;
+		QString dataDirPath;
 		QSize sizeHint();
 		void paintEvent(QPaintEvent * event);
 

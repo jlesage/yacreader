@@ -85,11 +85,15 @@ void CreateLibraryDialog::create()
 {
 
 	QFileInfo f(path->text());
+#ifdef DETACHED_LIBRARY_DATA_DIR
+	if(f.exists() && f.isDir())
+#else
 	if(f.exists() && f.isDir() && f.isWritable())
+#endif
 	{
 		if(!libraries.contains(nameEdit->text()))
 		{
-			emit(createLibrary(QDir::cleanPath(path->text()),QDir::cleanPath(path->text())+"/.yacreaderlibrary",nameEdit->text()));
+			emit(createLibrary(QDir::cleanPath(path->text()),QDir::cleanPath(libraries.getDataDirPathFromLibraryPath(path->text())),nameEdit->text()));
 			close();
 		}
 		else
